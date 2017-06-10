@@ -92,20 +92,15 @@ a {
   opacity: 0.54;
 }
 
-body.details-active .story__title,
-body.details-active .story__by,
-body.details-active .story__score {
+body.details-active main {
   transition: opacity 0.5s ease-out;
   opacity: 0 !important;
-}
-
-body.details-active .story {
-  background: linear-gradient(to bottom, #FFF 0%, #FFF 100%);
+  will-change: opacity;
+  transform: translateZ(0);
 }
 
 body.raised .header {
-  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.16),
-      0px 2px 5px 0px rgba(0, 0, 0, 0.23);
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.16)
 }
 
 main {
@@ -117,6 +112,8 @@ main {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   z-index: 0;
+  will-change: scroll-position;
+  transform: translateZ(0);
 }
 
 main.loading {
@@ -145,7 +142,6 @@ main.loading {
 
 .story {
   padding: 16px 16px 16px 72px;
-  background: #FFF;
   background: linear-gradient(to bottom, #FFF 0%,#F4F4F4 100%);
   position: relative;
   min-height: 90px;
@@ -199,8 +195,6 @@ main.loading {
   line-height: 40px;
 
   box-shadow:
-      0px 2px 5px 0px rgba(0, 0, 0, 0.06),
-      0px 2px 5px 0px rgba(0, 0, 0, 0.08),
       0px 2px 7px 0px rgba(0, 0, 0, 0.10);
 }
 
@@ -233,16 +227,14 @@ main.loading {
   background: white;
   z-index: 2;
   box-shadow:
-      0px 2px 5px 0px rgba(0, 0, 0, 0.06),
-      0px 2px 5px 0px rgba(0, 0, 0, 0.08),
       0px 2px 7px 0px rgba(0, 0, 0, 0.10);
 
   overflow: hidden;
   transition: opacity 0.3s ease-out;
 }
 
-.story-details * {
-  will-change: transform;
+.story-details {
+  will-change: opacity, left;
   transform: translateZ(0);
 }
 
@@ -256,6 +248,8 @@ main.loading {
   -webkit-overflow-scrolling: touch;
 
   padding: 0 16px 72px 72px;
+  will-change: scroll-position;
+  transform: translateZ(0);
 }
 
 .story-details__title {

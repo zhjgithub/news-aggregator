@@ -20,9 +20,21 @@ APP.Data = (function() {
   var HN_TOPSTORIES_URL = HN_API_BASE + '/v0/topstories.json';
   var HN_STORYDETAILS_URL = HN_API_BASE + '/v0/item/[ID].json';
 
+  var nextCallbackID = 0;
+  var callbacks = {};
+  
+  var worker = new Worker('scripts/worker.js');
+  worker.addEventListener('message', function(e) {
+    var callbackID = e.data.callbackID;
+    if(callbacks[callbackID]) {
+      callbacks[callbackID](e.data.response);
+      callbacks[callbackID] = null;
+    };
+  });
+
   function getTopStories(callback) {
-    request(HN_TOPSTORIES_URL, function(evt) {
-      callback(evt.target.response);
+    request(HN_TOPSTORIES_URL, function(response) {
+      callback(response);
     });
   }
 
@@ -30,8 +42,8 @@ APP.Data = (function() {
 
     var storyURL = HN_STORYDETAILS_URL.replace(/\[ID\]/, id);
 
-    request(storyURL, function(evt) {
-      callback(evt.target.response);
+    request(storyURL, function(response) {
+      callback(response);
     });
   }
 
@@ -39,17 +51,15 @@ APP.Data = (function() {
 
     var storyCommentURL = HN_STORYDETAILS_URL.replace(/\[ID\]/, id);
 
-    request(storyCommentURL, function(evt) {
-      callback(evt.target.response);
+    request(storyCommentURL, function(response) {
+      callback(response);
     });
   }
 
   function request(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.onload = callback;
-    xhr.send();
+    var callbackID = nextCallbackID++;
+    callbacks[callbackID] = callback;
+    worker.postMessage({url: url, callbackID: callbackID});
   }
 
   return {
