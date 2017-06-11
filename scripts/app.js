@@ -23,7 +23,6 @@ APP.Main = (function() {
   var storyStart = 0;
   var count = 100;
   var main = $('main');
-  var storyDetails;
   var storyLoadCount = 0;
   var localeData = {
     data: {
@@ -55,6 +54,10 @@ APP.Main = (function() {
   var storyDetailsCommentTemplate =
       Handlebars.compile(tmplStoryDetailsComment);
 
+  var storyDetails = document.createElement('section');
+  storyDetails.classList.add('story-details');
+  document.body.appendChild(storyDetails);
+
   /**
    * As every single story arrives in shove its
    * content in at that exact moment. Feels like something
@@ -78,48 +81,34 @@ APP.Main = (function() {
     }
 
   function onStoryClick(details) {
+    
+    if (details.url)
+      details.urlobj = new URL(details.url);
 
-    // Wait a little time then show the story details.
-    requestAnimationFrame(showStory);
+    var comment;
+    var commentsElement;
+    var storyHeader;
+    var storyContent;
 
-    // Create and append the story. A visual change...
-    // perhaps that should be in a requestAnimationFrame?
-    if (!storyDetails) {
-      storyDetails = document.createElement('section');
-      storyDetails.classList.add('story-details');
-      document.body.appendChild(storyDetails);
-    }
+    var storyDetailsHtml = storyDetailsTemplate(details);
+    var kids = details.kids;
+    var commentHtml = storyDetailsCommentTemplate({
+      by: '', text: 'Loading comment...'
+    });
 
-    if (storyDetails) {
+    storyDetails.setAttribute('id', 'sd-' + details.id);
+    storyDetails.innerHTML = storyDetailsHtml;
 
-      if (details.url)
-        details.urlobj = new URL(details.url);
+    commentsElement = storyDetails.querySelector('.js-comments');
+    storyHeader = storyDetails.querySelector('.js-header');
+    storyContent = storyDetails.querySelector('.js-content');
 
-      var comment;
-      var commentsElement;
-      var storyHeader;
-      var storyContent;
+    var closeButton = storyDetails.querySelector('.js-close');
+    closeButton.addEventListener('click', hideStory.bind(this));
+    var headerHeight = storyHeader.getBoundingClientRect().height;
+    storyContent.style.paddingTop = headerHeight + 'px';
 
-      var storyDetailsHtml = storyDetailsTemplate(details);
-      var kids = details.kids;
-      var commentHtml = storyDetailsCommentTemplate({
-        by: '', text: 'Loading comment...'
-      });
-
-      storyDetails.setAttribute('id', 'sd-' + details.id);
-      storyDetails.innerHTML = storyDetailsHtml;
-
-      commentsElement = storyDetails.querySelector('.js-comments');
-      storyHeader = storyDetails.querySelector('.js-header');
-      storyContent = storyDetails.querySelector('.js-content');
-
-      var closeButton = storyDetails.querySelector('.js-close');
-      closeButton.addEventListener('click', hideStory.bind(this));
-      var headerHeight = storyHeader.getBoundingClientRect().height;
-      storyContent.style.paddingTop = headerHeight + 'px';
-
-      if (typeof kids === 'undefined')
-        return;
+    if (typeof kids !== 'undefined') {
 
       for (var k = 0; k < kids.length; k++) {
 
@@ -135,31 +124,24 @@ APP.Main = (function() {
           commentDetails.time *= 1000;
 
           var comment = commentsElement.querySelector(
-              '#sdc-' + commentDetails.id);
+            '#sdc-' + commentDetails.id);
           comment.innerHTML = storyDetailsCommentTemplate(
-              commentDetails,
-              localeData);
+            commentDetails,
+            localeData);
         });
       }
     }
 
+    showStory();
   }
 
   function showStory() {
-
-    if (!storyDetails) {
-      return;
-    }
-
     storyDetails.classList.add('visible');
-    document.body.classList.add('details-active');
   }
 
   function hideStory() {
-
     storyDetails.classList.remove('visible');
-    document.body.classList.remove('details-active');
-    }
+  }
 
   main.addEventListener('scroll', function() {
 

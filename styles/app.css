@@ -92,13 +92,6 @@ a {
   opacity: 0.54;
 }
 
-body.details-active main {
-  transition: opacity 0.5s ease-out;
-  opacity: 0 !important;
-  will-change: opacity;
-  transform: translateZ(0);
-}
-
 body.raised .header {
   box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.16)
 }
