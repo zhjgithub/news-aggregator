@@ -230,12 +230,15 @@ main.loading {
       0px 2px 7px 0px rgba(0, 0, 0, 0.10);
 
   overflow: hidden;
-  transition: opacity 0.3s ease-out;
+  transition: transform 0.5s ease, opacity 0.5s ease-out;
+  /*transition: left 0.5s ease, opacity 0.5s ease-out;*/
+  will-change: opacity, transform;
 }
 
-.story-details {
-  will-change: opacity, left;
-  transform: translateZ(0);
+.story-details.visible {
+  opacity: 1;
+  transform: translateX(-100%);
+  /*left: 0;*/
 }
 
 .story-details__content {

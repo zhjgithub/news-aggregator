@@ -23,7 +23,7 @@ APP.Main = (function() {
   var storyStart = 0;
   var count = 100;
   var main = $('main');
-  var inDetails = false;
+  var storyDetails;
   var storyLoadCount = 0;
   var localeData = {
     data: {
@@ -79,10 +79,8 @@ APP.Main = (function() {
 
   function onStoryClick(details) {
 
-    var storyDetails = $('.story-details');
-
     // Wait a little time then show the story details.
-    setTimeout(showStory.bind(this, details.id), 60);
+    requestAnimationFrame(showStory);
 
     // Create and append the story. A visual change...
     // perhaps that should be in a requestAnimationFrame?
@@ -149,81 +147,18 @@ APP.Main = (function() {
 
   function showStory() {
 
-    if (inDetails)
+    if (!storyDetails) {
       return;
-
-    inDetails = true;
-
-    var storyDetails = $('.story-details');
-    var left = null;
-
-    if (!storyDetails)
-      return;
-
-    document.body.classList.add('details-active');
-    storyDetails.style.opacity = 1;
-
-    function animate () {
-
-      // Find out where it currently is.
-      var storyDetailsPosition = storyDetails.getBoundingClientRect();
-
-      // Set the left value if we don't have one already.
-      if (left === null)
-        left = storyDetailsPosition.left;
-
-      // Now figure out where it needs to go.
-      left += (0 - storyDetailsPosition.left) * 0.1;
-
-      // Set up the next bit of the animation if there is more to do.
-      if (Math.abs(left) > 0.5)
-        requestAnimationFrame(animate);
-      else
-        left = 0;
-
-      // And update the styles. Wait, is this a read-write cycle?
-      // I hope I don't trigger a forced synchronous layout!
-      storyDetails.style.left = left + 'px';
     }
 
-    requestAnimationFrame(animate);
+    storyDetails.classList.add('visible');
+    document.body.classList.add('details-active');
   }
 
   function hideStory() {
 
-    if (!inDetails)
-      return;
-
-    var storyDetails = $('.story-details');
-    var left = 0;
-
+    storyDetails.classList.remove('visible');
     document.body.classList.remove('details-active');
-    storyDetails.style.opacity = 0;
-
-    function animate () {
-
-      // Find out where it currently is.
-      var mainPosition = main.getBoundingClientRect();
-      var storyDetailsPosition = storyDetails.getBoundingClientRect();
-      var target = mainPosition.width + 100;
-
-      // Now figure out where it needs to go.
-      left += (target - storyDetailsPosition.left) * 0.1;
-
-      // Set up the next bit of the animation if there is more to do.
-      if (Math.abs(left - target) > 0.5) {
-        requestAnimationFrame(animate);
-      } else {
-        left = target;
-        inDetails = false;
-      }
-
-      // And update the styles. Wait, is this a read-write cycle?
-      // I hope I don't trigger a forced synchronous layout!
-      storyDetails.style.left = left + 'px';
-    }
-
-    requestAnimationFrame(animate);
     }
 
   main.addEventListener('scroll', function() {
@@ -247,7 +182,7 @@ APP.Main = (function() {
     var loadThreshold = (main.scrollHeight - main.offsetHeight -
         LAZY_LOAD_THRESHOLD);
     if (main.scrollTop > loadThreshold)
-      loadStoryBatch();
+      requestAnimationFrame(loadStoryBatch);
   });
 
   function loadStoryBatch() {
@@ -285,7 +220,7 @@ APP.Main = (function() {
   // Bootstrap in the stories.
   APP.Data.getTopStories(function(data) {
     stories = data;
-    loadStoryBatch();
+    requestAnimationFrame(loadStoryBatch);
     main.classList.remove('loading');
   });
 
